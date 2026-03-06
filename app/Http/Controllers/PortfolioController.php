@@ -55,6 +55,33 @@ class PortfolioController extends Controller
         ]);
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'description' => 'nullable|string',
+    //         'content' => 'nullable|string',
+    //         'image_path' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+    //         'link' => 'nullable|url',
+    //     ]);
+
+    //     $validated['slug'] = Str::slug($validated['title']);
+
+    //     // Traiter l'upload d'image
+    //     if ($request->hasFile('image_path')) {
+    //         $file = $request->file('image_path');
+    //         $filename = time() . '_' . $file->getClientOriginalName();
+    //         $file->storeAs('portfolios', $filename, 'public');
+    //         $validated['image_path'] = '/storage/portfolios/' . $filename;
+    //     }
+
+    //     $data = Portfolio::create($validated);
+    //     return response()->json([
+    //         'message' => 'Portfolio created successfully',
+    //         'portfolio' => $data
+    //     ]);
+    // }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -67,15 +94,26 @@ class PortfolioController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
 
-        // Traiter l'upload d'image
+        // Traiter l'upload d'image directement dans public/portfolios
         if ($request->hasFile('image_path')) {
             $file = $request->file('image_path');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('portfolios', $filename, 'public');
-            $validated['image_path'] = '/storage/portfolios/' . $filename;
+
+            // Nettoyer le nom de fichier
+            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '_', $file->getClientOriginalName());
+
+            // Déplacer le fichier dans public/portfolios
+            $destinationPath = public_path('portfolios');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $filename);
+
+            // Stocker le chemin relatif pour l'affichage
+            $validated['image_path'] = '/portfolios/' . $filename;
         }
 
         $data = Portfolio::create($validated);
+
         return response()->json([
             'message' => 'Portfolio created successfully',
             'portfolio' => $data
