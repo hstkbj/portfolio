@@ -127,7 +127,6 @@ class PortfolioController extends Controller
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
-        // Validation conditionnelle pour image_path
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -135,22 +134,21 @@ class PortfolioController extends Controller
             'link' => 'nullable|url',
         ];
 
-        // Ajouter la validation d'image SEULEMENT si un fichier est envoyé
         if ($request->hasFile('image_path')) {
             $rules['image_path'] = 'image|mimes:jpg,jpeg,png,webp';
         }
 
         $validated = $request->validate($rules);
 
-        // Traiter l'upload d'image
         if ($request->hasFile('image_path')) {
             $file = $request->file('image_path');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('portfolios', $filename, 'public');
-            $validated['image_path'] = '/storage/portfolios/' . $filename;
+            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '_', $file->getClientOriginalName());
+            $destinationPath = public_path('portfolios');
+            if (!file_exists($destinationPath)) mkdir($destinationPath, 0755, true);
+            $file->move($destinationPath, $filename);
+            $validated['image_path'] = '/portfolios/' . $filename;
         }
 
-        // Mettre à jour le slug si le titre a changé
         if (isset($validated['title'])) {
             $validated['slug'] = Str::slug($validated['title']);
         }
