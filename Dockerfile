@@ -30,4 +30,4 @@ RUN chmod -R 775 storage bootstrap/cache
 EXPOSE 10000
 
 # Commande de démarrage du serveur Laravel
-CMD  php artisan storage:link && php artisan serve --host=0.0.0.0 --port=10000
+CMD  php artisan storage:link || true && php artisan serve --host=0.0.0.0 --port=10000
