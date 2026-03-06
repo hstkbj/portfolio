@@ -1,1 +1,0 @@
-import{g as n,d as e,a as c,p as s}from"./api-CWHvFv9b.js";async function r(){return await c("/contacts").then(t=>t.data.contacts)}async function u(t){return await s("/contact",t).then(a=>a.data)}async function i(t){return await n(`/contact/${t}`).then(a=>a.data.contact)}async function d(t){return await e(`/contact/${t}`).then(a=>a.data)}export{u as A,d as D,i as S,r as a};
