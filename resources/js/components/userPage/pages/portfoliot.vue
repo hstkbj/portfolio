@@ -31,7 +31,7 @@
                 <RouterLink :to="'/projectDetail/' + prf.slug">
                   <h4>{{ prf.title }}</h4>
                 </RouterLink>
-                <p class="text-justify">{{ prf.description }}</p>
+                <p class="text-justify desc">{{ prf.description }}</p>
               </div>
             </div>
           </div>
@@ -149,4 +149,12 @@ onMounted(() => {
 
 </script>
 
-<style></style>
+<style scoped>
+.desc {
+    display: -webkit-box;        /* Nécessaire pour limiter le nombre de lignes */
+    -webkit-box-orient: vertical; 
+    -webkit-line-clamp: 3;       /* Nombre de lignes à afficher */
+    overflow: hidden;             /* Masquer le reste */
+    text-overflow: ellipsis;      /* Afficher "…" */
+}
+</style>
