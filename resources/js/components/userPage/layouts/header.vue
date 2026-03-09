@@ -17,7 +17,11 @@
                     <li><RouterLink to="/portfolio">Portfolio</RouterLink></li>
                     <li><RouterLink to="/#contact">Contact</RouterLink></li>
                 </ul>
-                <i class="mobile-nav-toggle d-xl-none fa-solid fa-bars"></i>
+                <i
+                    class="mobile-nav-toggle d-xl-none"
+                    :class="isOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"
+                    @click="toggleMobileNav"
+                ></i>
             </nav>
 
             <div class="header-social-links">
@@ -31,11 +35,30 @@
 </template>
 
 <script>
-export default {
+import { ref } from 'vue'
 
+const isOpen = ref(false)
+
+function toggleMobileNav() {
+  isOpen.value = !isOpen.value
+  document.body.classList.toggle('mobile-nav-active')
+}
+
+function closeMobileNav() {
+  if (isOpen.value) {
+    isOpen.value = false
+    document.body.classList.remove('mobile-nav-active')
+  }
 }
 </script>
 
 <style>
+.mobile-nav-active #navmenu {
+  left: 0;
+}
 
+#navmenu {
+  left: -100%;
+  transition: 0.3s;
+}
 </style>
