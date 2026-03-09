@@ -17,7 +17,7 @@
                     <li><RouterLink to="/portfolio">Portfolio</RouterLink></li>
                     <li><RouterLink to="/#contact">Contact</RouterLink></li>
                 </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                <i class="mobile-nav-toggle d-xl-none fa-solid fa-bars"></i>
             </nav>
 
             <div class="header-social-links">
