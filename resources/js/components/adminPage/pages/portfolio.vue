@@ -36,21 +36,12 @@
                         <div class="row">
 
                             <div class="col-lg-12">
-                                <div v-if="imagePreview" class="preview-box mb-3">
-                                    <img :src="imagePreview" alt="Preview image">
-                                    <button type="button" class="remove-btn" @click="removeImage">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                                <div v-else class="contente">
-
-                                    <label for="Uimage">
-                                        <i class="fa-regular fa-upload"></i>
-                                        <span>Choisir une image</span>
-                                        <input type="file" accept="image/*" @change="handleImageUpload" id="Uimage"
-                                            hidden>
-                                    </label>
-
+                                <label for="nameSlideTop" class="form-label">Image URL </label>
+                                <input type="text" :class="isEmpty.image_path ? 'is-invalid border border-danger' : ''"
+                                    v-model="data.image_path" id="nameSlideTop" class="form-control"
+                                    placeholder="Entrez le titre du portfolio" />
+                                <div v-if="isEmpty.image_path" class="invalid-feedback">
+                                    {{ msgInput.image_path }}
                                 </div>
                             </div>
 

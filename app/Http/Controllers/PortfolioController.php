@@ -88,29 +88,13 @@ class PortfolioController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'content' => 'nullable|string',
-            'image_path' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'image_path' => 'nullable|url',
             'link' => 'nullable|url',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
 
-        // Traiter l'upload d'image directement dans public/portfolios
-        if ($request->hasFile('image_path')) {
-            $file = $request->file('image_path');
-
-            // Nettoyer le nom de fichier
-            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '_', $file->getClientOriginalName());
-
-            // Déplacer le fichier dans public/portfolios
-            $destinationPath = public_path('portfolios');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-            $file->move($destinationPath, $filename);
-
-            // Stocker le chemin relatif pour l'affichage
-            $validated['image_path'] = '/portfolios/' . $filename;
-        }
+       
 
         $data = Portfolio::create($validated);
 
@@ -131,6 +115,7 @@ class PortfolioController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'content' => 'nullable|string',
+            'image_path' => 'nullable|url',
             'link' => 'nullable|url',
         ];
 
@@ -139,15 +124,6 @@ class PortfolioController extends Controller
         }
 
         $validated = $request->validate($rules);
-
-        if ($request->hasFile('image_path')) {
-            $file = $request->file('image_path');
-            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '_', $file->getClientOriginalName());
-            $destinationPath = public_path('portfolios');
-            if (!file_exists($destinationPath)) mkdir($destinationPath, 0755, true);
-            $file->move($destinationPath, $filename);
-            $validated['image_path'] = '/portfolios/' . $filename;
-        }
 
         if (isset($validated['title'])) {
             $validated['slug'] = Str::slug($validated['title']);
