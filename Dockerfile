@@ -43,8 +43,6 @@ CMD ["sh", "-c", "\
     && ln -sfn /tmp/portfolio-storage storage \
     && php artisan config:clear \
     && php artisan config:cache \
-    && rm -rf public/storage \
-    && php artisan storage:link \
     && php artisan migrate --force \
     && php-fpm -D \
     && nginx -g 'daemon off;'"]
