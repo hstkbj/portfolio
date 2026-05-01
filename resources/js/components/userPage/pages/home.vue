@@ -34,11 +34,11 @@
               <img src="assets/img/profile/profile.jpg" alt="Sarah Mitchell" class="img-fluid">
               <div class="floating-elements">
                 <div class="floating-card design" data-aos="fade-left" data-aos-delay="700">
-                  <i class="fa-regular fa-palette"></i>
+                  <i class="fas fa-palette"></i>
                   <span>Design</span>
                 </div>
                 <div class="floating-card code" data-aos="fade-right" data-aos-delay="800">
-                  <i class="fa-regular fa-code"></i>
+                  <i class="fas fa-code"></i>
                   <span>Code</span>
                 </div>
                 <div class="floating-card creativity" data-aos="fade-up" data-aos-delay="900">
@@ -85,10 +85,13 @@
 
             <div class="cta-group">
               <a href="#portfolio" class="btn-ghost">
-                Voir mon portfolio <i class="fa-regular fa-arrow-up-right"></i>
+                Voir mon portfolio <i class="fas fa-eye"></i>
+              </a>
+              <a href="https://comeup.com/fr/@holmessohe" target="_blank" class="btn-ghost">
+                Service ComeUp <i class="fas fa-globe"></i>
               </a>
               <a href="assets/doc/TKBJ011-SOHE.HSO_20230501.pdf" target="_blank" download class="link-underline">
-                Télécharger mon CV <i class="fa-regular fa-download"></i>
+                Télécharger mon CV <i class="fas fa-download"></i>
               </a>
             </div>
           </div>
@@ -133,7 +136,7 @@
               </p>
               <a @click.prevent="selectService('Développement d\'applications web')" class="service-link cursor-pointer">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -150,7 +153,7 @@
               </p>
               <a @click.prevent="selectService('Création de solutions SaaS')" class="service-link cursor-pointer">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -167,7 +170,7 @@
                 modernes.</p>
               <a @click.prevent="selectService('Développement d\'API REST')"  class="service-link cursor-pointer">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -183,7 +186,7 @@
               <p>Création d'applications mobiles modernes et haute performance connectées à des API sécurisées.</p>
               <a @click.prevent="selectService('Développement d\'applications mobiles')" class="service-link cursor-pointer">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -199,7 +202,7 @@
               <p>Création d'interfaces dynamiques, fluides et intuitives pour une expérience utilisateur optimale.</p>
               <a @click.prevent="selectService('Interfaces modernes avec Vue.js')" class="service-link cursor-pointer">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -215,7 +218,7 @@
               <p>Implémentation d'outils et processus automatisés pour simplifier et accélérer les tâches métier.</p>
               <a href="service-details.html" class="service-link">
                 <span>Soumettre une demande</span>
-                <i class="fa-regular fa-arrow-right"></i>
+                <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -243,7 +246,7 @@
     <div class="container" data-aos="fade-up" data-aos-delay="100">
 
       <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
-        
+
 
         <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
           <div v-for="(prf,index) in porfolio" :key="index" class="col-lg-4 col-md-6 portfolio-item isotope-item filter-strategy">
@@ -372,10 +375,10 @@
                   <div v-if="alertMsg" class="alert" :class="alertType" role="alert">
                     {{ alertMsg }}
                   </div>
-                  
+
                   <div v-if="isLoader" class="loading"></div>
                   <button  type="submit" class="btn btn-primary" :disabled="isLoader">
-                    {{ isLoader ? 'Chargement...' : 'Envoyer le message' }} 
+                    {{ isLoader ? 'Chargement...' : 'Envoyer le message' }}
                   </button>
                 </div>
 
@@ -457,13 +460,13 @@ async function AddContactFunction() {
 // 🔥 Fonction pour sélectionner un service
 const selectService = (serviceName) => {
   data.value.subject = `Demande de service : ${serviceName}`
-  
+
   // Scroll vers la section contact
   const contactSection = document.getElementById('contact')
   if (contactSection) {
     contactSection.scrollIntoView({ behavior: 'smooth' })
   }
-  
+
   // Mise à jour de l'URL
   history.pushState(null, null, '#contact')
 }
@@ -476,7 +479,7 @@ onMounted(() => {
   if (hash.includes('contact')) {
     const urlParams = new URLSearchParams(hash.split('?')[1])
     const service = urlParams.get('service')
-    
+
     if (service) {
       const serviceNames = {
         'developpement-applications-web': 'Développement d\'applications web',
@@ -486,11 +489,11 @@ onMounted(() => {
         'interfaces-vuejs': 'Interfaces modernes avec Vue.js',
         'automatisation-outils-metier': 'Automatisation et outils métier'
       }
-      
+
       const serviceName = serviceNames[service]
       if (serviceName) {
         data.value.subject = `Demande de service : ${serviceName}`
-        
+
         setTimeout(() => {
           document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
         }, 100)
