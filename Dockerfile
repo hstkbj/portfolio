@@ -1,33 +1,50 @@
-# Étape 1 : Utiliser une image officielle PHP avec CLI et extensions nécessaires
-FROM php:8.2-cli
+FROM php:8.2-fpm-alpine AS base
 
-# Installer des dépendances système pour Laravel
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libzip-dev \
-    zip \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip
+# Dépendances système + extensions PHP
+RUN apk add --no-cache nginx curl zip unzip git nodejs npm \
+    libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql zip gd
 
 # Installer Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Définir le dossier de travail
-WORKDIR /app
+WORKDIR /var/www/html
 
-# Copier tous les fichiers du projet (sans node_modules ni build)
+# Copier les fichiers
 COPY . .
 
+# Build Vue.js
+RUN npm install && npm run build
+
 # Installer les dépendances PHP
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --optimize-autoloader --no-dev
 
-# Donner les permissions correctes pour Laravel
-RUN chmod -R 775 storage bootstrap/cache
+# Permissions storage
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/cache \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-# Exposer le port que Laravel utilise
-EXPOSE 10000
+# Config Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Commande de démarrage du serveur Laravel
-CMD  php artisan storage:link || true && php artisan serve --host=0.0.0.0 --port=10000
+EXPOSE 8080
+
+CMD ["sh", "-c", "\
+    mkdir -p /tmp/portfolio-storage/framework/sessions \
+    /tmp/portfolio-storage/framework/cache \
+    /tmp/portfolio-storage/framework/views \
+    /tmp/portfolio-storage/logs \
+    && chmod -R 777 /tmp/portfolio-storage \
+    && ln -sfn /tmp/portfolio-storage storage \
+    && php artisan config:clear \
+    && php artisan config:cache \
+    && php artisan storage:link || true \
+    && php artisan migrate --force \
+    && php artisan db:seed --force \
+    && php-fpm -D \
+    && nginx -g 'daemon off;'"]
