@@ -13,15 +13,11 @@ export async function SinglePortfolio(id) {
 }
 
 export async function CreatePortfolio(data) {
-    return await postData('/portfolio', data).then(res => {
-        return res.data.portfolio
-    })
+    return await postData('/portfolio', data).then((res) => res.data.portfolio)
 }
 
 export async function UpdatePortfolio(id, data) {
-    return await postData('/portfolio/' + id, data).then(res => {
-        return res.data.portfolio
-    })
+    return await putData('/portfolio/' + id, data).then((res) => res.data.portfolio)
 }
 
 export async function DeletePortfolio(id) {

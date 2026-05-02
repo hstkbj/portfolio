@@ -2,7 +2,7 @@
   <div class="auth-layout">
     <div class="auth-container">
       <!-- Logo -->
-      <a href="index.html" class="auth-logo">
+      <a href="/" class="auth-logo">
         <img src="/admin/assets/img/logo.webp" alt="EasyAdmin">
         <span>EasyAdmin</span>
       </a>
@@ -23,12 +23,12 @@
           <div class="form-group">
             <div class="d-flex justify-content-between align-items-center">
               <label for="password" class="form-label">Password</label>
-              <a href="auth-forgot-password.html" class="auth-link small">Forgot password?</a>
+              <span class="auth-link small text-muted">Besoin d'aide ? Contactez l'administrateur.</span>
             </div>
             <div class="input-group">
               <input class="form-control" :type="showpwd ? 'text' : 'password'" :class="isEmpty.password ? 'is-invalid border border-danger' : ''" v-model="dataLogin.password" id="password" name="password" placeholder="Enter your password" required="">
               <button class="btn btn-outline-secondary" type="button" @click="togglePwd">
-                <i class="fa-regular fa-eye"></i>
+                <i :class="showpwd ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
             <div v-if="isEmpty.password" class="invalid-feedback">{{ msgInput.password }}</div>
@@ -52,11 +52,8 @@
 
 <script setup>
 
-  import { onMounted,ref } from 'vue';
-  import { useRouter } from 'vue-router';
-import { postData } from '../../plugins/api';
-
-  const router = useRouter();
+  import { ref } from 'vue';
+  import { postData } from '../../plugins/api';
   const dataLogin = ref({
       email:'',
       password:''

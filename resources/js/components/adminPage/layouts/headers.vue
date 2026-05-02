@@ -5,18 +5,18 @@
   <header class="header">
     <!-- Header Left -->
     <div class="header-left">
-      <a href="index.html" class="header-logo">
+      <a href="/admins" class="header-logo">
         <img src="admin/assets/img/logo.webp" alt="EasyAdmin">
         <span>EasyAdmin</span>
       </a>
       <button class="sidebar-toggle" title="Toggle Sidebar">
-        <i class="fa-regular fa-bars"></i>
+        <i class="bi bi-list"></i>
       </button>
     </div>
 
     <!-- Header Search (Desktop) - Expandable -->
     <div class="header-search">
-      <form class="search-form collapsed" action="search-results.html" method="GET">
+      <form class="search-form collapsed" @submit.prevent>
         <button type="button" class="search-toggle-btn"><i class="bi bi-search"></i></button>
         <input type="search" name="q" placeholder="Search..." autocomplete="off">
       </form>
@@ -34,14 +34,14 @@
 
         <!-- Fullscreen Toggle -->
         <button class="header-action fullscreen-toggle" onclick="toggleFullscreen()" title="Fullscreen">
-          <i class="ffa-light fa-expand-wide icon-enter"></i>
-          <i class="fa-light fa-compress-wide icon-exit"></i>
+          <i class="bi bi-arrows-fullscreen icon-enter"></i>
+          <i class="bi bi-fullscreen-exit icon-exit"></i>
         </button>
 
         <!-- Notifications -->
         <div class="header-action dropdown notification-dropdown">
           <button class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-regular fa-bell"></i>
+            <i class="bi bi-bell"></i>
             <span class="badge">3</span>
           </button>
           <div class="dropdown-menu dropdown-menu-end">
@@ -82,7 +82,7 @@
               </div>
             </div>
             <div class="notification-footer">
-              <a href="notifications.html">View all notifications</a>
+              <RouterLink to="/admins/contact">Voir les messages</RouterLink>
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@
               <img src="/admin/assets/img/profile-img.webp" alt="User" class="user-avatar">
               <div class="user-info">
                 <h6>{{ currentUser.name }}</h6>
-                <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d6bcb9beb896b3aeb7bba6bab3f8b5b9bb">[email&#160;protected]</a></span>
+                <span>{{ currentUser.email }}</span>
               </div>
             </li>
             <li>

@@ -19,14 +19,14 @@
                 </ul>
                 <i
                     class="mobile-nav-toggle d-xl-none"
-                    :class="isOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"
+                    :class="isOpen ? 'bi bi-x-lg' : 'bi bi-list'"
                     @click="toggleMobileNav"
                 ></i>
             </nav>
 
             <div class="header-social-links">
-                <a href="https://www.facebook.com/profile.php?id=61580410003642" target="_blank" class="facebook me-2"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="https://www.linkedin.com/in/holmes-sohe-86753b260" target="_blank" class="linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61580410003642" target="_blank" class="facebook me-2"><i class="bi bi-facebook"></i></a>
+                <a href="https://www.linkedin.com/in/holmes-sohe-86753b260" target="_blank" class="linkedin"><i class="bi bi-linkedin"></i></a>
             </div>
 
         </div>
@@ -34,7 +34,7 @@
 
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
 
 const isOpen = ref(false)

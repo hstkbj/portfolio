@@ -22,13 +22,11 @@ export function initTinyMCE(el, options) {
         // ✅ ✅ Handler d’upload personnalisé
         images_upload_url: function (blobInfo, success, failure) {
             const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
             xhr.open('POST', '/api/uploadimgTi');
 
-            // ✅ Ajouter le token CSRF
-            const token = document.querySelector('meta[name="csrf-token"]');
+            const token = localStorage.getItem('token');
             if (token) {
-                xhr.setRequestHeader('X-CSRF-TOKEN', token.getAttribute('content'));
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
             }
 
             xhr.onload = function () {
@@ -148,8 +146,10 @@ function handleWordImagesUpload(editor) {
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/uploadimgTi');
-            const token = document.querySelector('meta[name="csrf-token"]');
-            if (token) xhr.setRequestHeader('X-CSRF-TOKEN', token.getAttribute('content'));
+            const token = localStorage.getItem('token');
+            if (token) {
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
 
             xhr.onload = function () {
                 if (xhr.status === 200) {

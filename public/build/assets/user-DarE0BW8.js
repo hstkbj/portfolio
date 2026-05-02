@@ -1,0 +1,1 @@
+import{g as e,b as s}from"./api-CtyNViiU.js";async function u(){return await e("/user").then(a=>a.data.user)}async function i(a,t){return await s(`/user/${a}`,t).then(r=>r.data.user)}export{u as C,i as U};

@@ -1,476 +1,425 @@
 <template>
-    <div class="main-content">
-
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1 class="page-title">Portfolio</h1>
-            <nav class="breadcrumb">
-                <RouterLink to="/admins" class="breadcrumb-item">Accueil</RouterLink>
-                <span class="breadcrumb-item active">Portfolio</span>
-            </nav>
-        </div>
-
-        <div class="mb-4 text-end">
-            <button class="btn btn-primary mb-3" @click="showModal">
-                <i class="fa-regular fa-plus"></i> Ajouter un portfolio
-            </button>
-        </div>
-
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <DataTable :data="portfolios" :columns="columns" />
-                </div>
-            </div>
-        </div>
-
-        <div class="modal modal-top fade" id="addportfolio" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <form class="modal-content"
-                    @submit.prevent="!isEdite ? AddPorfolioFunction() : UpdatePortfolioFunction()">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTopTitle">{{ modalTitle }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-
-                            <div class="col-lg-12">
-                                <label for="nameSlideTop" class="form-label">Image URL </label>
-                                <input type="text" :class="isEmpty.image_path ? 'is-invalid border border-danger' : ''"
-                                    v-model="data.image_path" id="nameSlideTop" class="form-control"
-                                    placeholder="Entrez le titre du portfolio" />
-                                <div v-if="isEmpty.image_path" class="invalid-feedback">
-                                    {{ msgInput.image_path }}
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6 mb-3">
-                                <label for="nameSlideTop" class="form-label">Titre </label>
-                                <input type="text" :class="isEmpty.title ? 'is-invalid border border-danger' : ''"
-                                    v-model="data.title" id="nameSlideTop" class="form-control"
-                                    placeholder="Entrez le titre du portfolio" />
-                                <div v-if="isEmpty.title" class="invalid-feedback">
-                                    {{ msgInput.title }}
-                                </div>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <label for="nameSlideTop" class="form-label">Liens </label>
-                                <input type="text" :class="isEmpty.link ? 'is-invalid border border-danger' : ''"
-                                    v-model="data.link" id="nameSlideTop" class="form-control"
-                                    placeholder="Entrez l'URL du projet" />
-                                <div v-if="isEmpty.link" class="invalid-feedback">
-                                    {{ msgInput.link }}
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12 mb-3">
-                                <label for="descriptionMission" class="form-label">Description </label>
-                                <textarea :class="isEmpty.description ? 'is-invalid border border-danger' : ''"
-                                    v-model="data.description" id="descriptionMission" class="form-control" rows="3"
-                                    placeholder="Entrez la description du portfolio" maxlength="200"></textarea>
-                                <div class="w-100 text-end">
-                                    <span class=" text-muted">{{ data.description.length }}/200</span>
-                                </div>
-                                <div v-if="isEmpty.description" class="invalid-feedback">
-                                    {{ msgInput.description }}
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12 mb-3">
-                                <label for="blog-editor" class="form-label">Contenu </label>
-                                <textarea :class="isEmpty.content ? 'is-invalid border border-danger' : ''"
-                                    v-model="data.content" class="form-control" rows="3"
-                                    placeholder="Entrez le contenu du portfolio" id="blog-editor"></textarea>
-                                <div v-if="isEmpty.content" class="invalid-feedback">
-                                    {{ msgInput.content }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Fermer
-                        </button>
-                        <button type="submit" class="btn btn-primary">{{ modalbutton }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
+  <div class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Portfolio</h1>
+      <nav class="breadcrumb">
+        <RouterLink to="/admins" class="breadcrumb-item">Accueil</RouterLink>
+        <span class="breadcrumb-item active">Portfolio</span>
+      </nav>
     </div>
+
+    <div class="mb-4 text-end">
+      <button class="btn btn-primary" @click="openCreateModal">
+        <i class="bi bi-plus-lg me-1"></i> Ajouter un portfolio
+      </button>
+    </div>
+
+    <div class="card admin-surface-card">
+      <div class="card-body">
+        <LoadingState v-if="loading" label="Chargement des portfolios..." />
+
+        <div v-else-if="errorMessage" class="alert alert-danger d-flex justify-content-between align-items-center gap-3">
+          <span>{{ errorMessage }}</span>
+          <button class="btn btn-outline-danger btn-sm" @click="loadPortfolios">Reessayer</button>
+        </div>
+
+        <div v-else-if="portfolios.length">
+          <DataTable :data="portfolios" :columns="columns" />
+        </div>
+
+        <div v-else class="empty-state-card text-center">
+          <h4>Aucun portfolio</h4>
+          <p class="text-muted mb-0">Ajoutez votre premier projet pour le voir apparaitre ici.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="portfolioModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <form class="modal-content" @submit.prevent="submitPortfolio">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <LoadingState v-if="modalLoading" label="Chargement du portfolio..." />
+
+            <div v-else class="row g-3">
+              <div class="col-lg-12">
+                <label for="portfolio-image" class="form-label">Image URL</label>
+                <input
+                  id="portfolio-image"
+                  v-model="form.image_path"
+                  type="url"
+                  class="form-control"
+                  :class="{ 'is-invalid': validationErrors.image_path }"
+                  placeholder="https://exemple.com/image.webp"
+                >
+                <div v-if="validationErrors.image_path" class="invalid-feedback">
+                  {{ validationErrors.image_path }}
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <label for="portfolio-title" class="form-label">Titre</label>
+                <input
+                  id="portfolio-title"
+                  v-model="form.title"
+                  type="text"
+                  class="form-control"
+                  :class="{ 'is-invalid': validationErrors.title }"
+                  placeholder="Entrez le titre du portfolio"
+                >
+                <div v-if="validationErrors.title" class="invalid-feedback">
+                  {{ validationErrors.title }}
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <label for="portfolio-link" class="form-label">Lien</label>
+                <input
+                  id="portfolio-link"
+                  v-model="form.link"
+                  type="url"
+                  class="form-control"
+                  :class="{ 'is-invalid': validationErrors.link }"
+                  placeholder="https://exemple.com"
+                >
+                <div v-if="validationErrors.link" class="invalid-feedback">
+                  {{ validationErrors.link }}
+                </div>
+              </div>
+
+              <div class="col-lg-12">
+                <label for="portfolio-description" class="form-label">Description</label>
+                <textarea
+                  id="portfolio-description"
+                  v-model="form.description"
+                  class="form-control"
+                  :class="{ 'is-invalid': validationErrors.description }"
+                  rows="3"
+                  maxlength="200"
+                  placeholder="Entrez la description du portfolio"
+                ></textarea>
+                <div class="text-end">
+                  <small class="text-muted">{{ form.description.length }}/200</small>
+                </div>
+                <div v-if="validationErrors.description" class="invalid-feedback">
+                  {{ validationErrors.description }}
+                </div>
+              </div>
+
+              <div class="col-lg-12">
+                <label for="blog-editor" class="form-label">Contenu</label>
+                <textarea
+                  id="blog-editor"
+                  v-model="form.content"
+                  class="form-control"
+                  :class="{ 'is-invalid': validationErrors.content }"
+                  rows="8"
+                  placeholder="Entrez le contenu du portfolio"
+                ></textarea>
+                <div v-if="validationErrors.content" class="invalid-feedback">
+                  {{ validationErrors.content }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Fermer
+            </button>
+            <button type="submit" class="btn btn-primary" :disabled="submitting || modalLoading">
+              <span v-if="submitting" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              {{ submitting ? 'Enregistrement...' : modalButtonLabel }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-
-import { nextTick, onMounted, ref, render } from 'vue';
-import DataTable from '../DataTable/Datatable.vue'
-import { initTinyMCE, destroyTinyMCE } from '../../plugins/tinymce';
+import { nextTick, onMounted, ref } from 'vue';
 import Swal from 'sweetalert2';
-import { AllPorfolio, CreatePortfolio, DeletePortfolio, SinglePortfolio, UpdatePortfolio } from '../api/portfolioapi';
+import DataTable from '../DataTable/Datatable.vue';
+import { CreatePortfolio, DeletePortfolio, AllPorfolio, SinglePortfolio, UpdatePortfolio } from '../api/portfolioapi';
+import { destroyTinyMCE, initTinyMCE, updateTinyMCE } from '../../plugins/tinymce';
+import LoadingState from '../../shared/LoadingState.vue';
 
-let addmodal;
+const portfolios = ref([]);
+const loading = ref(true);
+const submitting = ref(false);
+const modalLoading = ref(false);
+const errorMessage = ref('');
+const isEditing = ref(false);
+const validationErrors = ref({});
+const modalTitle = ref('Ajouter un portfolio');
+const modalButtonLabel = ref('Enregistrer');
 
-const portfolios = ref([])
-const data = ref({
-    id: '',
-    title: '',
-    description: '',
-    content: '',
-    image_path: '',
-    link: '',
-})
+const defaultForm = () => ({
+  id: null,
+  title: '',
+  description: '',
+  content: '',
+  image_path: '',
+  link: '',
+});
 
-const imagePreview = ref('')
-const isEmpty = ref({})
-const msgInput = ref({})
-const isLoader = ref(false)
-const isEdite = ref(false)
-const modalTitle = ref('')
-const modalbutton = ref('')
+const form = ref(defaultForm());
+let portfolioModal;
 
-function showModal() {
-    addmodal.show();
-    data.value = {
-        id: '',
-        title: '',
-        description: '',
-        content: '',
-        image_path: '',
-        link: '',
-    }
-    modalTitle.value = 'Ajouter un portfolio'
-    modalbutton.value = 'Enrégistrer'
-    isEmpty.value = {}
-    msgInput.value = {}
-    isEdite.value = false
+function formatDate(value) {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
 }
 
-async function AllPortFolit() {
-    portfolios.value = await AllPorfolio()
+function resetForm() {
+  form.value = defaultForm();
+  validationErrors.value = {};
+}
+
+function validateForm() {
+  const errors = {};
+
+  if (!form.value.title.trim()) {
+    errors.title = 'Le titre est requis.';
+  }
+
+  if (!form.value.description.trim()) {
+    errors.description = 'La description est requise.';
+  }
+
+  if (!form.value.content.trim()) {
+    errors.content = 'Le contenu est requis.';
+  }
+
+  if (!form.value.image_path.trim()) {
+    errors.image_path = "L'URL de l'image est requise.";
+  }
+
+  if (!form.value.link.trim()) {
+    errors.link = 'Le lien du projet est requis.';
+  }
+
+  validationErrors.value = errors;
+  return Object.keys(errors).length === 0;
+}
+
+async function loadPortfolios() {
+  try {
+    loading.value = true;
+    errorMessage.value = '';
+    portfolios.value = await AllPorfolio();
+  } catch (error) {
+    portfolios.value = [];
+    errorMessage.value = "Les portfolios n'ont pas pu etre charges.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+function openCreateModal() {
+  resetForm();
+  isEditing.value = false;
+  modalTitle.value = 'Ajouter un portfolio';
+  modalButtonLabel.value = 'Enregistrer';
+  modalLoading.value = false;
+  portfolioModal.show();
+}
+
+async function openEditModal(id) {
+  try {
+    resetForm();
+    isEditing.value = true;
+    modalTitle.value = 'Modifier le portfolio';
+    modalButtonLabel.value = 'Mettre a jour';
+    modalLoading.value = true;
+    portfolioModal.show();
+
+    const portfolio = await SinglePortfolio(id);
+    form.value = {
+      id: portfolio.id,
+      title: portfolio.title || '',
+      description: portfolio.description || '',
+      content: portfolio.content || '',
+      image_path: portfolio.image_path || '',
+      link: portfolio.link || '',
+    };
+
+    await nextTick();
+    if (tinymce.get('blog-editor')) {
+      updateTinyMCE('blog-editor', form.value.content);
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: "Le portfolio n'a pas pu etre charge.",
+    });
+    portfolioModal.hide();
+  } finally {
+    modalLoading.value = false;
+  }
+}
+
+async function submitPortfolio() {
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    submitting.value = true;
+
+    const payload = {
+      title: form.value.title,
+      description: form.value.description,
+      content: form.value.content,
+      image_path: form.value.image_path,
+      link: form.value.link,
+    };
+
+    if (isEditing.value && form.value.id) {
+      await UpdatePortfolio(form.value.id, payload);
+    } else {
+      await CreatePortfolio(payload);
+    }
+
+    await loadPortfolios();
+    portfolioModal.hide();
+    Swal.fire({
+      icon: 'success',
+      title: isEditing.value ? 'Portfolio mis a jour' : 'Portfolio ajoute',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: error?.response?.data?.message || "L'enregistrement du portfolio a echoue.",
+    });
+  } finally {
+    submitting.value = false;
+  }
+}
+
+async function deletePortfolioEntry(id) {
+  const result = await Swal.fire({
+    title: 'Supprimer ce portfolio ?',
+    text: "Cette action est irreversible.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+  });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await DeletePortfolio(id);
+    await loadPortfolios();
+    Swal.fire({
+      icon: 'success',
+      title: 'Portfolio supprime',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: "La suppression du portfolio a echoue.",
+    });
+  }
 }
 
 const columns = [
-    {
-        title: '#',
-        data: null,
-        render: function (data, type, row, meta) {
-            return meta.row + 1; // Index (1-based)
-        }
-    },
-    { title: 'Titre', data: 'title' },
-    {
-        title: 'Lien',
-        data: 'link',
-        render: (data, type, row) => {
-            return `<a href="${row.link}" target="_blank">${row.link}</a>`;
-        }
-    },
-    {
-        title: 'Crée le', data: 'created_at', render: (data, type, row) => {
-            // Formater la date
-            const date = new Date(row.created_at); // Assure-toi que `created_at` est au format ISO ou timestamp
-            return new Intl.DateTimeFormat('en-EN', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            }).format(date); // Formater la date à la française
-        }
-    },
-    {
-        title: 'Actions',
-        data: null,
-        render: function (data, type, row) {
-            return `
-                <div class="d-flex align-items-center">
-                    <a onClick="GetPorfolioFunction(${row.id})" class="btn btn-secondary text-white  me-2" data-bs-toggle="modal" data-bs-target="#edit_role">
-                        <i class="fa fa-edit "></i> 
-                    </a> 
-                    <a onClick="DeletePorfolioFunction(${row.id})" class="btn btn-danger text-white me-2">
-                        <i class="fa fa-trash "></i> 
-                    </a> 
-                </div>`;
-        }
+  {
+    title: '#',
+    data: null,
+    render: (data, type, row, meta) => meta.row + 1,
+  },
+  {
+    title: 'Titre',
+    data: 'title',
+  },
+  {
+    title: 'Lien',
+    data: 'link',
+    render: (data) => `<a href="${data}" target="_blank" class="text-decoration-none">${data}</a>`,
+  },
+  {
+    title: 'Cree le',
+    data: 'created_at',
+    render: (data) => formatDate(data),
+  },
+  {
+    title: 'Actions',
+    data: null,
+    orderable: false,
+    searchable: false,
+    render: (data, type, row) => `
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onClick="window.EditPortfolioEntry(${row.id})">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onClick="window.DeletePortfolioEntry(${row.id})">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    `,
+  },
+];
+
+window.EditPortfolioEntry = openEditModal;
+window.DeletePortfolioEntry = deletePortfolioEntry;
+
+onMounted(() => {
+  portfolioModal = new bootstrap.Modal(document.getElementById('portfolioModal'));
+
+  document.getElementById('portfolioModal').addEventListener('shown.bs.modal', async () => {
+    await nextTick();
+
+    if (!tinymce.get('blog-editor')) {
+      initTinyMCE('blog-editor', {
+        height: 500,
+        setup: (editor) => {
+          editor.on('init', () => {
+            editor.setContent(form.value.content || '');
+          });
+
+          editor.on('Change KeyUp', () => {
+            form.value.content = editor.getContent();
+          });
+        },
+      });
     }
-]
+  });
 
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-
-
-    if (!file) return;
-
-    // Vérification taille
-    if (file.size > MAX_SIZE) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Image trop lourde',
-            text: 'L’image ne doit pas dépasser 5MB',
-        });
-        event.target.value = '';
-        return;
-    }
-
-    // Stocker le fichier directement
-    data.value.image_path = file;
-    imagePreview.value = URL.createObjectURL(file)
-    console.log(imagePreview.value)
-
-    // Reset input pour pouvoir re-sélectionner la même image
-    event.target.value = '';
-}
-
-// Remove new image
-function removeImage() {
-    data.value.image_path = '';
-    imagePreview.value = ''
-}
-
-async function AddPorfolioFunction() {
-
-    const ignoredFields = ['id']
-    for (const field in data.value) {
-        if (ignoredFields.includes(field)) continue
-        isEmpty.value[field] = !data.value[field]
-        msgInput.value[field] = `Please enter ${field.replace('_', ' ')}`;
+  document.getElementById('portfolioModal').addEventListener('hidden.bs.modal', () => {
+    if (tinymce.get('blog-editor')) {
+      destroyTinyMCE('blog-editor');
     }
 
-    const allEmpty = Object.values(isEmpty.value).every(value => value === false);
+    resetForm();
+    isEditing.value = false;
+    modalLoading.value = false;
+  });
 
-    if (allEmpty) {
-        isLoader.value = true;
-
-        // 2. CRÉATION DU FORMDATA (C'est l'étape clé)
-        const formData = new FormData();
-
-        for (const key in data.value) {
-            formData.append(key, data.value[key]);
-        }
-
-        await CreatePortfolio(formData).then(response => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Portfolio Added Successfully',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            addmodal.hide();
-            AllPortFolit();
-        }).catch(error => {
-            console.error('There was an error!', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'An error occurred while adding the portfolio.',
-                text: error.message || 'Please try again later.'
-            });
-        }).finally(() => {
-            isLoader.value = false;
-        });
-    }
-
-
-}
-
-window.GetPorfolioFunction = async function (id) {
-    data.value = await SinglePortfolio(id);
-    addmodal.show();
-    modalTitle.value = 'Edit Portfolio'
-    modalbutton.value = 'Update'
-    isEdite.value = true
-    imagePreview.value = data.value.image_path || ''
-}
-
-async function UpdatePortfolioFunction() {
-    isLoader.value = true
-
-    const formData = new FormData();
-
-    // Ajouter _method pour que Laravel traite comme PUT
-    formData.append('_method', 'PUT');
-
-    for (const key in data.value) {
-        formData.append(key, data.value[key]);
-    }
-
-    await UpdatePortfolio(data.value.id, formData).then(response => {
-        isLoader.value = false
-        isEdite.value = false
-        Swal.fire({
-            icon: 'success',
-            title: 'Portfolio Updated Successfully',
-            showConfirmButton: false,
-            timer: 1500
-        });
-        data.value = {
-            id: '',
-            title: '',
-            description: '',
-            content: '',
-            image_path: '',
-            link: '',
-        }
-        addmodal.hide();
-        AllPortFolit();
-    }).catch(error => {
-        console.error('There was an error!', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'An error occurred while updating the portfolio.',
-            text: error.message || 'Please try again later.'
-        });
-    }).finally(() => {
-        isLoader.value = false;
-    });
-}
-
-window.DeletePorfolioFunction = function (id) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            // Appel API pour supprimer la mission
-            try {
-                await DeletePortfolio(id);
-                Swal.fire(
-                    'Deleted!',
-                    'Your portfolio has been deleted.',
-                    'success'
-                );
-                AllPortFolit();
-            } catch (error) {
-                console.error('There was an error!', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'An error occurred while deleting the portfolio.',
-                    text: error.message || 'Please try again later.'
-                });
-            }
-        }
-    });
-}
-
-onMounted(async () => {
-    addmodal = new bootstrap.Modal(document.getElementById('addportfolio'));
-    document.getElementById('addportfolio').addEventListener('shown.bs.modal', async () => {
-        await nextTick();
-        initTinyMCE('blog-editor', {
-            height: 500,
-            setup: (editor) => {
-                editor.on('init', () => {
-                    editor.setContent(data.value.content || '');
-                });
-
-                editor.on('Change KeyUp', () => {
-                    data.value.content = editor.getContent();
-                });
-            }
-        })
-    })
-    document.getElementById('addportfolio').addEventListener('hidden.bs.modal', () => {
-        destroyTinyMCE('blog-editor');
-    });
-    AllPortFolit()
+  loadPortfolios();
 });
-
 </script>
-
-<style scoped>
-.contente {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 150px;
-    border: dashed 2px;
-    border-radius: 10px;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.contente label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-}
-
-.contente label i {
-    font-size: 32px;
-}
-
-/* Bouton upload */
-.upload-box {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 18px;
-    border: 2px dashed #c4c4c4;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #555;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    width: fit-content;
-}
-
-.upload-box i {
-    font-size: 22px;
-}
-
-.upload-box:hover {
-    border-color: #8b4513;
-    color: #8b4513;
-    background: #fdf6f2;
-}
-
-/* Preview */
-.preview-box {
-    position: relative;
-    width: 220px;
-    height: 160px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #ddd;
-}
-
-.preview-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Bouton supprimer */
-.remove-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: rgba(0, 0, 0, 0.6);
-    border: none;
-    color: white;
-    padding: 6px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.remove-btn i {
-    font-size: 16px;
-}
-
-.remove-btn:hover {
-    background: rgba(220, 53, 69, 0.9);
-}
-</style>

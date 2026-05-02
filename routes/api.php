@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/portfolio',[PortfolioController::class, 'store']);
     Route::put('/portfolio/{id}',[PortfolioController::class, 'update']);
     Route::delete('/portfolio/{id}',[PortfolioController::class, 'destroy']);
+    Route::post('/uploadimgTi',[PortfolioController::class, 'uploadTinyMceImage']);
 
     //Contact Routes
     Route::get('/contacts',[ContactController::class, 'index']);

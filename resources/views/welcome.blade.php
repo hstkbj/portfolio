@@ -6,11 +6,7 @@
 
         <title>HolmesDev</title>
 
-        <!-- Font Awesome CSS -->
-        <link href="{{asset('assets/css/fontAwesomePro.css')}}" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-          <!-- Favicons -->
+        <!-- Favicons -->
         <link href="{{asset('assets/img/favicon.png')}}" rel="icon">
         <link href="{{asset('assets/img/apple-touch-icon.png')}}" rel="apple-touch-icon">
 
@@ -51,9 +47,6 @@
         <script src="{{asset('vendors/imagesloaded/imagesloaded.pkgd.min.js')}}"></script>
         <script src="{{asset('vendors/isotope-layout/isotope.pkgd.min.js')}}"></script>
         <script src="{{asset('vendors/glightbox/js/glightbox.min.js')}}"></script>
-
-        <!-- Main JS File -->
-        <script src="{{asset('assets/js/main.js')}}"></script>
 
         <script defer="" src="{{asset('beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015')}}" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"68c5ca450bae485a842ff76066d69420","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
     </body>

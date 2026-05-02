@@ -119,10 +119,6 @@ class PortfolioController extends Controller
             'link' => 'nullable|url',
         ];
 
-        if ($request->hasFile('image_path')) {
-            $rules['image_path'] = 'image|mimes:jpg,jpeg,png,webp';
-        }
-
         $validated = $request->validate($rules);
 
         if (isset($validated['title'])) {
@@ -156,6 +152,19 @@ class PortfolioController extends Controller
         $data->delete();
         return response()->json([
             'message' => 'Portfolio deleted successfully'
+        ]);
+    }
+
+    public function uploadTinyMceImage(Request $request)
+    {
+        $validated = $request->validate([
+            'file' => 'required|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
+        ]);
+
+        $path = $validated['file']->store('portfolios/content', 'public');
+
+        return response()->json([
+            'location' => Storage::url($path),
         ]);
     }
 }
